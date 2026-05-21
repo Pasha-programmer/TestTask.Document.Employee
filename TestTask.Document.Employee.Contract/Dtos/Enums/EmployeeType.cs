@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace TestTask.Document.Employee.Database.Entities.Enums;
+namespace TestTask.Document.Employee.Contract.Dtos.Enums;
 
 /// <summary>
 /// Тип сотрудника.
@@ -10,5 +10,6 @@ public enum EmployeeType : int
     /// <summary>
     /// Сотрудник.
     /// </summary>
+    [Description("Сотрудник")]
     Employee = 1,
 }
