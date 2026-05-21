@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TestTask.Document.Employee.Contract.Dtos;
+using TestTask.Document.Employee.Contract.Dtos.Enums;
 using TestTask.Document.Employee.Contract.Dtos.FilterParameters;
 using TestTask.Document.Employee.Contract.Interfaces.DocumentProcess;
 using TestTask.Document.Employee.Contract.Interfaces.DocumentRequest;
@@ -20,7 +21,7 @@ public static class EndpointBuilder
     /// <param name="endpoints">Строитель маршрутов в приложении.</param>
     public static void UseEmployeeDocumentEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var employeeDocumentGroupEndpoints = endpoints.MapGroup($"/api/{VERSION}/document/employee")
+        var employeeDocumentGroupEndpoints = endpoints.MapGroup($"/api/{VERSION}/document")
             .WithTags("Документы сотрудника")
             .RequireAuthorization();
 
@@ -98,7 +99,7 @@ public static class EndpointBuilder
         employeeDocumentGroupEndpoints.MapGet("/details/{id:int}",
         async (
             [FromServices] IDocumentProcessQuery documentProcessQuery,
-            int id,
+            [FromRoute] int id,
             CancellationToken cancellationToken = default
         ) =>
         {
@@ -119,13 +120,16 @@ public static class EndpointBuilder
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
 
-        employeeDocumentGroupEndpoints.MapPut("/requested-document",
+        employeeDocumentGroupEndpoints.MapPut("/{id:int}/status",
         async (
             [FromServices] IDocumentProcessCommand documentProcessCommand,
+            [FromRoute] int id,
             [FromBody] RequestCommandToUpdateDto requestCommandToUpdateDto,
             CancellationToken cancellationToken = default
         ) =>
         {
+            requestCommandToUpdateDto.Id = id;
+
             var result = await documentProcessCommand.UpdateStatusDocumentRequest(requestCommandToUpdateDto, cancellationToken);
 
             if (result.IsFailed)
