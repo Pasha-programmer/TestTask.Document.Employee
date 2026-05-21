@@ -13,5 +13,5 @@ public interface IDocumentRequestCommand
     /// </summary>
     /// <param name="requestCommandToCreateDto">Модель создания запроса.</param>
     /// <returns>Идентфикатор запроса.</returns>
-    public Task<Result<long, IDictionary<string, string[]>>> CreateDocumentRequest(RequestCommandToCreateDto requestCommandToCreateDto);
+    public Task<Result<long, IDictionary<string, string[]>>> CreateDocumentRequest(RequestCommandToCreateDto requestCommandToCreateDto, CancellationToken cancellationToken = default);
 }

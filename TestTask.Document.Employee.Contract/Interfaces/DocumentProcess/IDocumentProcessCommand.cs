@@ -12,5 +12,5 @@ public interface IDocumentProcessCommand
     /// Обновить статус запроса.
     /// </summary>
     /// <param name="requestCommandToUpdateDto">Модель команды для обновления статуса</param>
-    public Task<Result<IDictionary<string, string[]>?>> UpdateStatusDocumentRequest(RequestCommandToUpdateDto requestCommandToUpdateDto);
+    public Task<Result<IDictionary<string, string[]>?>> UpdateStatusDocumentRequest(RequestCommandToUpdateDto requestCommandToUpdateDto, CancellationToken cancellationToken = default);
 }

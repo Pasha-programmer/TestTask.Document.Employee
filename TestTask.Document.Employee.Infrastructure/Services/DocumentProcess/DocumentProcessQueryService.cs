@@ -22,9 +22,11 @@ internal class DocumentProcessQueryService(
     private readonly IDbContextFactory<EmployeeDocumentDbContext> _dbContextFactory = dbContextFactory;
 
     /// <inheritdoc/>
-    public async Task<Result<IReadOnlyCollection<DocumentRequestFullDto>>> GetDocumentRequestsDetails(DocumentRequestFilterParameters? documentRequestFilterParameters)
+    public async Task<Result<IReadOnlyCollection<DocumentRequestFullDto>>> GetDocumentRequestsDetails(
+        DocumentRequestFilterParameters? documentRequestFilterParameters,
+        CancellationToken cancellationToken = default)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var query = from dr in context.DocumentRequests
                     select dr;
@@ -40,18 +42,20 @@ internal class DocumentProcessQueryService(
             Count = dr.Count,
             Reason = dr.Reason,
             CreateDate = dr.CreateDate,
-        }).ToArrayAsync();
+        }).ToArrayAsync(cancellationToken);
 
         return Result<IReadOnlyCollection<DocumentRequestFullDto>>.Success(data);
     }
 
     /// <inheritdoc/>
-    public async Task<Result<DocumentRequestFullDto>> GetDocumentRequestDetails(long documentRequestId)
+    public async Task<Result<DocumentRequestFullDto>> GetDocumentRequestDetails(
+        long documentRequestId, 
+        CancellationToken cancellationToken = default)
     {
         var result = await GetDocumentRequestsDetails(new()
         {
             DocumentRequestIds = [documentRequestId],
-        });
+        }, cancellationToken);
 
         if (result.IsFailed || result.Value.Count != 1)
         {

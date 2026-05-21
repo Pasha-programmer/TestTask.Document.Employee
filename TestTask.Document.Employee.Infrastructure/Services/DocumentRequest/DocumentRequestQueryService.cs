@@ -20,9 +20,11 @@ internal class DocumentRequestQueryService(
     private readonly IDbContextFactory<EmployeeDocumentDbContext> _dbContextFactory = dbContextFactory;
 
     /// <inheritdoc/>
-    public async Task<Result<IReadOnlyCollection<DocumentRequestDto>>> GetDocumentRequests(DocumentRequestFilterParameters documentRequestFilterParameters)
+    public async Task<Result<IReadOnlyCollection<DocumentRequestDto>>> GetDocumentRequests(
+        DocumentRequestFilterParameters documentRequestFilterParameters,
+        CancellationToken cancellationToken = default)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var query = from dr in context.DocumentRequests
                     select dr;
@@ -36,7 +38,7 @@ internal class DocumentRequestQueryService(
             DocumentType = (AccountingDocumentType)dr.DocumentType,
             RequestStatus = (RequestStatus)dr.RequestStatus,
             CreateDate = dr.CreateDate,
-        }).ToArrayAsync();
+        }).ToArrayAsync(cancellationToken);
 
         return Result<IReadOnlyCollection<DocumentRequestDto>>.Success(data);
     }

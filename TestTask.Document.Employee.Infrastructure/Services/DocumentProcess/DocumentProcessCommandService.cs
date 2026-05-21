@@ -20,9 +20,11 @@ internal class DocumentProcessCommandService(
     private readonly IDbContextFactory<EmployeeDocumentDbContext> _dbContextFactory = dbContextFactory;
 
     /// <inheritdoc/>
-    public async Task<Result<IDictionary<string, string[]>?>> UpdateStatusDocumentRequest(RequestCommandToUpdateDto requestCommandToUpdateDto)
+    public async Task<Result<IDictionary<string, string[]>?>> UpdateStatusDocumentRequest(
+        RequestCommandToUpdateDto requestCommandToUpdateDto,
+        CancellationToken cancellationToken = default)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var documentRequestEntity = new DocumentRequestEntity
         {
@@ -33,7 +35,7 @@ internal class DocumentProcessCommandService(
         context.Attach(documentRequestEntity);
         context.Entry(documentRequestEntity).Property(x => x.RequestStatus).IsModified = true;
 
-        if ((await context.SaveChangesAsync()) > 0)
+        if ((await context.SaveChangesAsync(cancellationToken)) > 0)
         {
             _logger.LogInformation("Статус запроса #{DocumentRequestId} обновлен", requestCommandToUpdateDto.Id);
             return Result<IDictionary<string, string[]>?>.Success(null);

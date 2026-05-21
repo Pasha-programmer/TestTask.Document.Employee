@@ -14,12 +14,16 @@ public interface IDocumentProcessQuery
     /// </summary>
     /// <param name="documentRequestFilterParameters">Параметры фильтрации.</param>
     /// <returns>Модели запросов.</returns>
-    public Task<Result<IReadOnlyCollection<DocumentRequestFullDto>>> GetDocumentRequestsDetails(DocumentRequestFilterParameters? documentRequestFilterParameters);
+    public Task<Result<IReadOnlyCollection<DocumentRequestFullDto>>> GetDocumentRequestsDetails(
+        DocumentRequestFilterParameters? documentRequestFilterParameters,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получить детали запроса.
     /// </summary>
     /// <param name="documentRequestId">Идентификатор запроса.</param>
     /// <returns>Модель запроса.</returns>
-    public Task<Result<DocumentRequestFullDto>> GetDocumentRequestDetails(long documentRequestId);
+    public Task<Result<DocumentRequestFullDto>> GetDocumentRequestDetails(
+        long documentRequestId,
+        CancellationToken cancellationToken = default);
 }

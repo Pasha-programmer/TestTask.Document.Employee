@@ -22,9 +22,11 @@ internal class DocumentRequestCommandService(
     private readonly IDbContextFactory<EmployeeDocumentDbContext> _dbContextFactory = dbContextFactory;
 
     /// <inheritdoc/>
-    public async Task<Result<long, IDictionary<string, string[]>>> CreateDocumentRequest(RequestCommandToCreateDto requestCommandToCreateDto)
+    public async Task<Result<long, IDictionary<string, string[]>>> CreateDocumentRequest(
+        RequestCommandToCreateDto requestCommandToCreateDto, 
+        CancellationToken cancellationToken = default)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var documentRequestEntity = new DocumentRequestEntity
         {
@@ -39,7 +41,7 @@ internal class DocumentRequestCommandService(
         context.Attach(documentRequestEntity);
         context.Entry(documentRequestEntity).Property(x => x.RequestStatus).IsModified = true;
 
-        if ((await context.SaveChangesAsync()) > 0)
+        if ((await context.SaveChangesAsync(cancellationToken)) > 0)
         {
             _logger.LogInformation("Запрос #{DocumentRequestId} успешно создан", documentRequestEntity.Id);
             return Result<long, IDictionary<string, string[]>>.Success(documentRequestEntity.Id);

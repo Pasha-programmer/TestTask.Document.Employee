@@ -14,5 +14,7 @@ public interface IDocumentRequestQuery
     /// </summary>
     /// <param name="documentRequestFilterParameters">Параметры фильтрации.</param>
     /// <returns>Коллекция моделей запроса.</returns>
-    public Task<Result<IReadOnlyCollection<DocumentRequestDto>>> GetDocumentRequests(DocumentRequestFilterParameters documentRequestFilterParameters);
+    public Task<Result<IReadOnlyCollection<DocumentRequestDto>>> GetDocumentRequests(
+        DocumentRequestFilterParameters documentRequestFilterParameters, 
+        CancellationToken cancellationToken = default);
 }
