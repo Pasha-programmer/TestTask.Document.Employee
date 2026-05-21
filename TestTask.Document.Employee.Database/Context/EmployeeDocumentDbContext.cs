@@ -36,6 +36,15 @@ public class EmployeeDocumentDbContext : DbContext
             entity.Property(e => e.RequestStatus)
                 .HasColumnName("request_status")
                 .HasColumnType("document_request_status");
+
+            entity.Property(e => e.Count)
+                .HasColumnName("count");
+
+            entity.Property(e => e.Reason)
+                .HasColumnName("reason");
+
+            entity.Property(e => e.CreateDate)
+                .HasColumnName("create_date");
         });
 
         modelBuilder.Entity<EmployeeEntity>(entity =>

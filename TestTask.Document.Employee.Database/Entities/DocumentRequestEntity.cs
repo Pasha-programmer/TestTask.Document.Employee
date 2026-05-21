@@ -26,4 +26,19 @@ public class DocumentRequestEntity
     /// Статус запроса.
     /// </summary>
     public RequestStatus RequestStatus { get; set; }
+
+    /// <summary>
+    /// Количество экземпляров.
+    /// </summary>
+    public int Count { get; set; }
+
+    /// <summary>
+    /// Причина запроса.
+    /// </summary>
+    public string Reason { get; set; }
+
+    /// <summary>
+    /// Дата создания запроса.
+    /// </summary>
+    public DateTimeOffset CreateDate { get; set; }
 }

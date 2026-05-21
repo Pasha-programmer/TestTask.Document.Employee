@@ -1,5 +1,6 @@
 ﻿using TestTask.Document.Employee.Common.Monads;
 using TestTask.Document.Employee.Contract.Dtos;
+using TestTask.Document.Employee.Contract.Dtos.FilterParameters;
 
 namespace TestTask.Document.Employee.Contract.Interfaces.DocumentProcess;
 
@@ -11,7 +12,14 @@ public interface IDocumentProcessQuery
     /// <summary>
     /// Получить детали запроса.
     /// </summary>
-    /// <param name="documentRequestFilterParameters"></param>
-    /// <returns></returns>
-    public Task<Result<DocumentRequestDto>> GetDocumentRequestsDetails(DocumentRequestFilterParameters documentRequestFilterParameters);
+    /// <param name="documentRequestFilterParameters">Параметры фильтрации.</param>
+    /// <returns>Модели запросов.</returns>
+    public Task<Result<IReadOnlyCollection<DocumentRequestFullDto>>> GetDocumentRequestsDetails(DocumentRequestFilterParameters? documentRequestFilterParameters);
+
+    /// <summary>
+    /// Получить детали запроса.
+    /// </summary>
+    /// <param name="documentRequestId">Идентификатор запроса.</param>
+    /// <returns>Модель запроса.</returns>
+    public Task<Result<DocumentRequestFullDto>> GetDocumentRequestDetails(long documentRequestId);
 }

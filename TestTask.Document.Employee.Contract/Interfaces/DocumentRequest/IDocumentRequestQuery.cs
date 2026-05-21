@@ -1,5 +1,6 @@
 ﻿using TestTask.Document.Employee.Common.Monads;
 using TestTask.Document.Employee.Contract.Dtos;
+using TestTask.Document.Employee.Contract.Dtos.FilterParameters;
 
 namespace TestTask.Document.Employee.Contract.Interfaces.DocumentRequest;
 

@@ -28,12 +28,7 @@ public record DocumentRequestDto
     public required RequestStatus RequestStatus { get; set; }
 
     /// <summary>
-    /// Количество экземпляров.
+    /// Дата создания запроса.
     /// </summary>
-    public required int Count { get; set; }
-
-    /// <summary>
-    /// Причина запроса.
-    /// </summary>
-    public required string Reason { get; set; }
+    public required DateTimeOffset CreateDate { get; set; }
 }

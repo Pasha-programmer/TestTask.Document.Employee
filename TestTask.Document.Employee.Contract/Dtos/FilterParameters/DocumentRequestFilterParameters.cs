@@ -1,6 +1,6 @@
 ﻿using TestTask.Document.Employee.Contract.Dtos.Enums;
 
-namespace TestTask.Document.Employee.Contract.Dtos;
+namespace TestTask.Document.Employee.Contract.Dtos.FilterParameters;
 
 /// <summary>
 /// Параметры фильтрации запросов на получение справок.
@@ -41,4 +41,14 @@ public record DocumentRequestFilterParameters
     /// Причина запроса.
     /// </summary>
     public string? ReasonSubstring { get; set; }
+
+    /// <summary>
+    /// Начальная дата создания запроса.
+    /// </summary>
+    public DateTimeOffset? FromCreateDate { get; set; }
+
+    /// <summary>
+    /// Конечная дата создания запроса.
+    /// </summary>
+    public DateTimeOffset? ToCreateDate { get; set; }
 }
