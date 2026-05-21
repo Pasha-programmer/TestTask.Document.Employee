@@ -5,9 +5,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics;
 using System.Text.Json;
 using TestTask.Document.Employee.Endpoints;
+using TestTask.Document.Employee.WebApi.Builders;
 using TestTask.Document.Employee.WebApi.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEmployeeDocumentServices(builder.Configuration);
 
 if (!builder.Environment.IsDevelopment())
 {

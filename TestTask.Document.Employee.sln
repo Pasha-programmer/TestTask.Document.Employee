@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestTask.Document.Employee.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestTask.Document.Employee.Infrastructure", "TestTask.Document.Employee.Infrastructure\TestTask.Document.Employee.Infrastructure.csproj", "{C8898E4E-0DC4-4312-9124-3AD3AA7D2E1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestTask.Document.Employee.Database", "TestTask.Document.Employee.Database\TestTask.Document.Employee.Database.csproj", "{2FD2BD58-55AD-4007-A730-BD3DDD9BECF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C8898E4E-0DC4-4312-9124-3AD3AA7D2E1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8898E4E-0DC4-4312-9124-3AD3AA7D2E1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8898E4E-0DC4-4312-9124-3AD3AA7D2E1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FD2BD58-55AD-4007-A730-BD3DDD9BECF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD2BD58-55AD-4007-A730-BD3DDD9BECF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD2BD58-55AD-4007-A730-BD3DDD9BECF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD2BD58-55AD-4007-A730-BD3DDD9BECF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
