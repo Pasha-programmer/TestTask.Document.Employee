@@ -7,24 +7,28 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["TestTask.Document.Employee/TestTask.Document.Employee.csproj", "TestTask.Document.Employee/"]
-RUN dotnet restore "./TestTask.Document.Employee/TestTask.Document.Employee.csproj"
+COPY ["TestTask.Document.Employee.WebApi/TestTask.Document.Employee.WebApi.csproj", "TestTask.Document.Employee.WebApi/"]
+COPY ["TestTask.Document.Employee.Endpoints/TestTask.Document.Employee.Endpoints.csproj", "TestTask.Document.Employee.Endpoints/"]
+COPY ["TestTask.Document.Employee.Common/TestTask.Document.Employee.Common.csproj", "TestTask.Document.Employee.Common/"]
+COPY ["TestTask.Document.Employee.Contract/TestTask.Document.Employee.Contract.csproj", "TestTask.Document.Employee.Contract/"]
+COPY ["TestTask.Document.Employee.Infrastructure/TestTask.Document.Employee.Infrastructure.csproj", "TestTask.Document.Employee.Infrastructure/"]
+COPY ["TestTask.Document.Employee.Database/TestTask.Document.Employee.Database.csproj", "TestTask.Document.Employee.Database/"]
+RUN dotnet restore "./TestTask.Document.Employee.WebApi/TestTask.Document.Employee.WebApi.csproj"
 COPY . .
-WORKDIR "/src/TestTask.Document.Employee"
-RUN dotnet build "./TestTask.Document.Employee.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/TestTask.Document.Employee.WebApi"
+RUN dotnet build "./TestTask.Document.Employee.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TestTask.Document.Employee.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./TestTask.Document.Employee.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TestTask.Document.Employee.dll"]
+ENTRYPOINT ["dotnet", "TestTask.Document.Employee.WebApi.dll"]

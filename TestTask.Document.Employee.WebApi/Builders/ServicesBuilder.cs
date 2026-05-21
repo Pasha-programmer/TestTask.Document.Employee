@@ -12,10 +12,6 @@ public static class ServicesBuilder
 
         #endregion
 
-        #region Business Services
-
-
-
-        #endregion
+        services.AddEmployeeDocumentBusinessServices();
     }
 }
