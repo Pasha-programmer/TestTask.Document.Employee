@@ -56,19 +56,19 @@ internal class DocumentRequestQueryService(
         if (documentRequestFilterParameters == null)
             return query;
 
-        if (documentRequestFilterParameters.DocumentRequestIds?.Count > 0)
+        if (documentRequestFilterParameters.DocumentRequestIds?.Length > 0)
             query = query.Where(dr => documentRequestFilterParameters.DocumentRequestIds.Contains(dr.Id));
 
-        if (documentRequestFilterParameters.DocumentRequestAuthorIds?.Count > 0)
+        if (documentRequestFilterParameters.DocumentRequestAuthorIds?.Length > 0)
             query = query.Where(dr => documentRequestFilterParameters.DocumentRequestAuthorIds.Contains(dr.AuthorId));
 
-        if (documentRequestFilterParameters.DocumentTypes?.Count > 0)
+        if (documentRequestFilterParameters.DocumentTypes?.Length > 0)
         {
             var castedDocumentTypes = documentRequestFilterParameters.DocumentTypes.Cast<Database.Entities.Enums.AccountingDocumentType>().ToArray();
             query = query.Where(dr => castedDocumentTypes.Contains(dr.DocumentType));
         }
 
-        if (documentRequestFilterParameters.RequestStatuses?.Count > 0)
+        if (documentRequestFilterParameters.RequestStatuses?.Length > 0)
         {
             var castedRequestStatuses = documentRequestFilterParameters.RequestStatuses.Cast<Database.Entities.Enums.RequestStatus>().ToArray();
             query = query.Where(dr => castedRequestStatuses.Contains(dr.RequestStatus));

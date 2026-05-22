@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TestTask.Document.Employee.Contract.Dtos;
 using TestTask.Document.Employee.Contract.Dtos.Enums;
 using TestTask.Document.Employee.Contract.Dtos.FilterParameters;
+using TestTask.Document.Employee.Contract.Interfaces.Authorization;
 using TestTask.Document.Employee.Contract.Interfaces.DocumentProcess;
 using TestTask.Document.Employee.Contract.Interfaces.DocumentRequest;
 
@@ -12,7 +14,6 @@ namespace TestTask.Document.Employee.Endpoints;
 
 public static class EndpointBuilder
 {
-    private const string LOGGER_NAME = "EmployeeDocumentEndpoints";
     public const string VERSION = "v1.0";
 
     /// <summary>
@@ -21,6 +22,8 @@ public static class EndpointBuilder
     /// <param name="endpoints">Строитель маршрутов в приложении.</param>
     public static void UseEmployeeDocumentEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        endpoints.MapHealthChecks("/api/health");
+
         var employeeDocumentGroupEndpoints = endpoints.MapGroup($"/api/{VERSION}/document")
             .WithTags("Документы сотрудника")
             .RequireAuthorization();
@@ -124,13 +127,15 @@ public static class EndpointBuilder
         async (
             [FromServices] IDocumentProcessCommand documentProcessCommand,
             [FromRoute] int id,
-            [FromBody] RequestCommandToUpdateDto requestCommandToUpdateDto,
+            [FromBody] RequestStatus requestStatus,
             CancellationToken cancellationToken = default
         ) =>
         {
-            requestCommandToUpdateDto.Id = id;
-
-            var result = await documentProcessCommand.UpdateStatusDocumentRequest(requestCommandToUpdateDto, cancellationToken);
+            var result = await documentProcessCommand.UpdateStatusDocumentRequest(new()
+            {
+                Id = id,
+                RequestStatus = requestStatus,
+            }, cancellationToken);
 
             if (result.IsFailed)
                 return result.Value == null
@@ -145,5 +150,50 @@ public static class EndpointBuilder
            .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
+
+        var usersMapGroup = endpoints.MapGroup($"/api/{VERSION}/users")
+            .WithTags("Авторизация/Регистрация/Пользователи");
+
+        usersMapGroup.MapPost("/token", async (
+            [FromServices] IAuthorizationTokenService service,
+            [FromBody] UserCredentialsDto model,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await service.GetAuthorizationToken(model, cancellationToken);
+
+            if (result.IsFailed)
+                return result.Error == null
+                    ? Results.Problem(result.Details, statusCode: StatusCodes.Status401Unauthorized)
+                    : Results.ValidationProblem(result.Error, result.Details);
+
+            return Results.Ok(result.Value);
+        })
+        .WithSummary("Получить токен авторизации")
+        .WithDescription("Получает токен авторизации")
+        .Produces<AuthorizationTokenDto>(StatusCodes.Status200OK)
+        .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
+        .Produces<UnauthorizedHttpResult>(StatusCodes.Status401Unauthorized)
+        .AllowAnonymous();
+
+        usersMapGroup.MapPost("/token/refresh", async (
+            [FromServices] IAuthorizationTokenService service,
+            [FromHeader(Name = "refresh_token")] string refreshToken,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await service.RefreshAuthorizationToken(new RefreshAccessTokenDto { RefreshToken = refreshToken }, cancellationToken);
+
+            if (result.IsFailed)
+                return result.Error == null
+                    ? Results.BadRequest(result.Details)
+                    : Results.ValidationProblem(result.Error, result.Details);
+
+            return Results.Ok(result.Value);
+        })
+        .WithSummary("Обновить токен авторизации")
+        .WithDescription("Обновляет токен авторизации")
+        .Produces<AuthorizationTokenDto>(StatusCodes.Status200OK)
+        .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
+        .Produces<BadRequest>(StatusCodes.Status400BadRequest)
+        .AllowAnonymous();
     }
 }

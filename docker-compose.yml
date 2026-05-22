@@ -1,0 +1,112 @@
+services:
+  testtask.webapi:
+    build:
+      context: TestTask.Document.Employee.WebApi
+      dockerfile: Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug #Debug, Release
+        - ASPNETCORE_ENVIRONMENT=Development #Development, Staging, Production
+        - ASPNETCORE_URLS=http://*:5052
+    ports:
+        - 5052:8080
+    environment:
+      - HostUrl=${HostUrl:-http://localhost:5052 }
+      - ConnectionStrings__EmployeeDocumentDB=Server=testtask.app.postgresdb;Port=5432;Database=appdb;User Id=appuser;Password=appuserpassword;
+      - KeycloakSettings__ServerUrl=http://testtask.keycloak:7080
+      - KeycloakSettings__RealmId=employee-document-realm
+      - KeycloakSettings__ClientId=employee-document-client
+      - KeycloakSettings__ClientSecret=2aivIGxkHwNnocZirpLVUVOvqUfAiFZe
+      - KeycloakSettings__Audience=account
+      - KeycloakSettings__Authority=http://testtask.keycloak:7080/realms/employee-document-realm
+      - KeycloakSettings__AdminCredentials__login=admin
+      - KeycloakSettings__AdminCredentials__password=admin
+    networks:
+        - employee-document-network
+    depends_on:      
+      testtask.app.postgresdb:
+        condition: service_healthy
+      testtask.keycloak:
+        condition: service_healthy
+
+  testtask.keycloak:
+    build:
+      context: Keycloak
+      dockerfile: Dockerfile
+    ports:
+        - 7080:7080
+        - 7443:7443
+    environment:
+        KC_HOSTNAME: localhost
+        #KC_FEATURES: "+hostname"
+        KC_HOSTNAME_PORT: 7080      
+        KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+        #KC_BOOTSTRAP_ADMIN_USERNAME: admin
+        #KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+        KC_HEALTH_ENABLED: "true"
+        KC_METRICS_ENABLED: "true"
+        #KC_LOG_LEVEL: info
+        KC_DB: postgres
+        KC_DB_URL: jdbc:postgresql://testtask.keycloak.postgresdb:5432/keycloakdb
+        KC_DB_USERNAME: keycloakeuser
+        KC_DB_PASSWORD: keycloakpassword
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      #test: ["CMD", "curl", "-f", "http://localhost:9000/health/ready"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]
+    networks:
+      - employee-document-network
+    depends_on:      
+        testtask.keycloak.postgresdb:
+          condition: service_healthy
+
+  testtask.app.postgresdb:
+    image: postgres:17
+    ports:
+        - 5454:5432
+    environment:
+        POSTGRES_USER: appuser
+        POSTGRES_PASSWORD: appuserpassword
+        POSTGRES_DB: appdb
+        PGDATA: /var/lib/postgresql/data
+    volumes:
+        - apppgdata:/var/lib/postgresql/data
+    networks:
+        - employee-document-network
+    healthcheck:      
+      test: [ "CMD-SHELL", "pg_isready -U appuser -d appdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  testtask.keycloak.postgresdb:
+    image: postgres:17
+    ports:
+        - 5456:5432
+    environment:
+        POSTGRES_USER: keycloakeuser
+        POSTGRES_PASSWORD: keycloakpassword
+        POSTGRES_DB: keycloakdb
+        PGDATA: /var/lib/postgresql/data
+    volumes:
+        - keycloakdbpgdata:/var/lib/postgresql/data
+    networks:
+        - employee-document-network
+    healthcheck:      
+      test: [ "CMD-SHELL", "pg_isready -U keycloakeuser -d keycloakdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  apppgdata:
+  keycloakdbpgdata:
+
+networks:
+  employee-document-network:

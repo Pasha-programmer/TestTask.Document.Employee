@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics;
 using System.Text.Json;
 using TestTask.Document.Employee.Endpoints;
+using TestTask.Document.Employee.Infrastructure;
 using TestTask.Document.Employee.WebApi.Builders;
 using TestTask.Document.Employee.WebApi.Handlers;
 
@@ -57,33 +59,28 @@ if (builder.Configuration.GetValue<bool>("UseSwagger"))
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.Http,
             Scheme = JwtBearerDefaults.AuthenticationScheme,
-            //Reference = new OpenApiReference
-            //{
-            //    Type = ReferenceType.SecurityScheme,
-            //    Id = JwtBearerDefaults.AuthenticationScheme
-            //}
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = JwtBearerDefaults.AuthenticationScheme
+            }
         };
 
         options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securitySchema);
 
         options.CustomSchemaIds(x => x.FullName);
-
-        options.MapType<TimeOnly>(() => new OpenApiSchema
-        {
-            Type = JsonSchemaType.String,
-            Default = new TimeOnly(DateTime.UtcNow.TimeOfDay.Ticks).ToString("hh:mm:ss"),
-        });
     });
 }
 
 var app = builder.Build();
+
+app.DbMigrate();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler();
     app.UseStatusCodePages();
 }
-
 
 if (app.Configuration.GetValue<bool>("UseSwagger"))
 {

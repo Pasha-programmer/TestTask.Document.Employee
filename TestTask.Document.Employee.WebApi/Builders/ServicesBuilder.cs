@@ -1,4 +1,5 @@
-﻿using TestTask.Document.Employee.Infrastructure;
+﻿using Microsoft.Extensions.DependencyInjection;
+using TestTask.Document.Employee.Infrastructure;
 
 namespace TestTask.Document.Employee.WebApi.Builders;
 
@@ -12,6 +13,8 @@ public static class ServicesBuilder
 
         #endregion
 
-        services.AddEmployeeDocumentBusinessServices();
+        services.AddEmployeeDocumentBusinessServices(configuration);
+
+        services.AddHealthChecks();
     }
 }

@@ -10,22 +10,22 @@ public record DocumentRequestFilterParameters
     /// <summary>
     /// Идентификаторы запросов.
     /// </summary>
-    public IReadOnlyCollection<long>? DocumentRequestIds { get; set; }
+    public long[]? DocumentRequestIds { get; set; }
 
     /// <summary>
     /// Идентификаторы авторов запросов.
     /// </summary>
-    public IReadOnlyCollection<long>? DocumentRequestAuthorIds { get; set; }
+    public long[]? DocumentRequestAuthorIds { get; set; }
 
     /// <summary>
     /// Типs запрашиваемых бухгатерских документов.
     /// </summary>
-    public IReadOnlyCollection<AccountingDocumentType>? DocumentTypes { get; set; }
+    public AccountingDocumentType[]? DocumentTypes { get; set; }
 
     /// <summary>
     /// Статусы запросов.
     /// </summary>
-    public IReadOnlyCollection<RequestStatus>? RequestStatuses { get; set; }
+    public RequestStatus[]? RequestStatuses { get; set; }
 
     /// <summary>
     /// Минимальное количество экземпляров.
