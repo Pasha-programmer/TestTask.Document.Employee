@@ -31,20 +31,14 @@ internal class AuthorizationTokenService(
     /// <returns>Результат с моделью токена.</returns>
     public async Task<Result<AuthorizationTokenDto?, IDictionary<string, string[]>>> GetAuthorizationToken(UserCredentialsDto authorizationData, CancellationToken cancellationToken)
     {
-        // запрашиваем токен у IdentityConnector
-        var identityTokenResult = await _identityConnectorService.GetUserAuthorizationToken(authorizationData.Login, authorizationData.Password, cancellationToken);
+        var authorizationToken = await identityConnectorService.GetUserAuthorizationToken(authorizationData.Login, authorizationData.Password, cancellationToken);
 
-        if (identityTokenResult?.AccessToken == null)
-            return Result.Failed("Неправильный логин или пароль");
-
-        var token = new AuthorizationTokenDto
+        if (authorizationToken == null)
         {
-            AccessToken = identityTokenResult!.AccessToken,
-            RefreshToken = identityTokenResult!.RefreshToken,
-        };
+            return Result<AuthorizationTokenDto?, IDictionary<string, string[]>>.Failed("Не удалось авторизоваться");
+        }
 
-        // возвращаем успешный результат
-        return token;
+        return Result<AuthorizationTokenDto?, IDictionary<string, string[]>>.Success(authorizationToken);
     }
 
     /// <summary>
@@ -58,27 +52,5 @@ internal class AuthorizationTokenService(
             return Result.Failed("Не удалось найти токен авторизации");
 
         return await _identityConnectorService.VerificationToken(token, cancellationToken);
-    }
-
-    /// <summary>
-    /// Получить токен авторизации.
-    /// </summary>
-    /// <param name="token">Токен обновления.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>Модель токена.</returns>
-    public async Task<Result<AuthorizationTokenDto?, IDictionary<string, string[]>>> RefreshAuthorizationToken(RefreshAccessTokenDto token, CancellationToken cancellationToken)
-    {
-        // обновляем токен у IdentityConnector
-        var identityTokenResult = await _identityConnectorService.RefreshUserAuthorizationToken(token.RefreshToken, cancellationToken);
-
-        if (identityTokenResult == null)
-            return Result.Failed("Не удалось обновить токен авторизации");
-
-        // возвращаем успешный результат
-        return new AuthorizationTokenDto
-        {
-            AccessToken = identityTokenResult!.AccessToken,
-            RefreshToken = identityTokenResult!.RefreshToken,
-        };
     }
 }

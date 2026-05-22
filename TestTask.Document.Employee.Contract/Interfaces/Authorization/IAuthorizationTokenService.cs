@@ -19,14 +19,6 @@ public interface IAuthorizationTokenService
     Task<Result<AuthorizationTokenDto?, IDictionary<string, string[]>>> GetAuthorizationToken(UserCredentialsDto authorizationData, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Получить токен авторизации.
-    /// </summary>
-    /// <param name="token">Токен обновления.</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Модель токена.</returns>
-    Task<Result<AuthorizationTokenDto?, IDictionary<string, string[]>>> RefreshAuthorizationToken(RefreshAccessTokenDto token, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Валидирировать токен авторизации.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>

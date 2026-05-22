@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TestTask.Document.Employee.Common.Monads;
 using TestTask.Document.Employee.Contract.Dtos;
@@ -15,24 +16,33 @@ namespace TestTask.Document.Employee.Infrastructure.Services.DocumentRequest;
 /// </summary>
 internal class DocumentRequestCommandService(
     ILogger<DocumentProcessCommandService> logger,
-    IDbContextFactory<EmployeeDocumentDbContext> dbContextFactory
+    IDbContextFactory<EmployeeDocumentDbContext> dbContextFactory,
+    IValidator<RequestCommandToCreateDto> requestCommandToCreateValidator,
+    IHttpContextAccessor httpContextAccessor
     ) : IDocumentRequestCommand
 {
     private readonly ILogger<DocumentProcessCommandService> _logger = logger;
     private readonly IDbContextFactory<EmployeeDocumentDbContext> _dbContextFactory = dbContextFactory;
+    private readonly IValidator<RequestCommandToCreateDto> _requestCommandToCreateValidator = requestCommandToCreateValidator;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     /// <inheritdoc/>
     public async Task<Result<long, IDictionary<string, string[]>>> CreateDocumentRequest(
         RequestCommandToCreateDto requestCommandToCreateDto, 
         CancellationToken cancellationToken = default)
     {
+        var validationResult = await _requestCommandToCreateValidator.ValidateAsync(requestCommandToCreateDto);
+
+        if (!validationResult.IsValid)
+            return Result<IDictionary<string, string[]>>.Failed(validationResult.ToDictionary(), "Невалиданые данные");
+
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var documentRequestEntity = new DocumentRequestEntity
         {
-            AuthorId = requestCommandToCreateDto.AuthorId,
+            Author = requestCommandToCreateDto.Author,
             DocumentType = (Database.Entities.Enums.AccountingDocumentType)requestCommandToCreateDto.DocumentType,
-            RequestStatus = (Database.Entities.Enums.RequestStatus)requestCommandToCreateDto.RequestStatus,
+            RequestStatus = Database.Entities.Enums.RequestStatus.Sent,
             Count = requestCommandToCreateDto.Count,
             Reason = requestCommandToCreateDto.Reason,
             CreateDate = DateTimeOffset.Now,

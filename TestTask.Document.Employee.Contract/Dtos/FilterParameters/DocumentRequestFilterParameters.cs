@@ -15,7 +15,7 @@ public record DocumentRequestFilterParameters
     /// <summary>
     /// Идентификаторы авторов запросов.
     /// </summary>
-    public long[]? DocumentRequestAuthorIds { get; set; }
+    public string[]? DocumentRequestAuthors { get; set; }
 
     /// <summary>
     /// Типs запрашиваемых бухгатерских документов.

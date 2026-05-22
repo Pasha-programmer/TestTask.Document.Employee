@@ -13,9 +13,10 @@ public class DocumentRequestEntity
     public long Id { get; set; }
 
     /// <summary>
-    /// Идентификатор автора запроса.
+    /// Автора запроса.
     /// </summary>
-    public long AuthorId { get; set; }
+    //TODO: сделать идентификатор пользователя
+    public string Author { get; set; }
 
     /// <summary>
     /// Тип запрашиваемого бухгатерского документа.

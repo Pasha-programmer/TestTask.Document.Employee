@@ -15,7 +15,7 @@ public record DocumentRequestDto
     /// <summary>
     /// Идентификатор автора запроса.
     /// </summary>
-    public required long AuthorId { get; set; }
+    public required string Author { get; set; }
 
     /// <summary>
     /// Тип запрашиваемого бухгатерского документа.

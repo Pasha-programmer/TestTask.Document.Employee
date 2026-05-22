@@ -34,7 +34,7 @@ internal class DocumentRequestQueryService(
         var data = await query.Select(dr => new DocumentRequestDto
         {
             Id = dr.Id,
-            AuthorId = dr.AuthorId,
+            Author = dr.Author,
             DocumentType = (AccountingDocumentType)dr.DocumentType,
             RequestStatus = (RequestStatus)dr.RequestStatus,
             CreateDate = dr.CreateDate,
@@ -59,8 +59,8 @@ internal class DocumentRequestQueryService(
         if (documentRequestFilterParameters.DocumentRequestIds?.Length > 0)
             query = query.Where(dr => documentRequestFilterParameters.DocumentRequestIds.Contains(dr.Id));
 
-        if (documentRequestFilterParameters.DocumentRequestAuthorIds?.Length > 0)
-            query = query.Where(dr => documentRequestFilterParameters.DocumentRequestAuthorIds.Contains(dr.AuthorId));
+        if (documentRequestFilterParameters.DocumentRequestAuthors?.Length > 0)
+            query = query.Where(dr => documentRequestFilterParameters.DocumentRequestAuthors.Contains(dr.Author));
 
         if (documentRequestFilterParameters.DocumentTypes?.Length > 0)
         {

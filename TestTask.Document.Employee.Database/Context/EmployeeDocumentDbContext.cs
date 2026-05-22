@@ -26,7 +26,7 @@ public class EmployeeDocumentDbContext : DbContext
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
-            entity.Property(e => e.AuthorId)
+            entity.Property(e => e.Author)
                 .HasColumnName("author_id");
 
             entity.Property(e => e.DocumentType)

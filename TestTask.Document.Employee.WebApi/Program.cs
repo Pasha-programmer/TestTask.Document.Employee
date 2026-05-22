@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using TestTask.Document.Employee.Endpoints;
 using TestTask.Document.Employee.Infrastructure;
 using TestTask.Document.Employee.WebApi.Builders;
 using TestTask.Document.Employee.WebApi.Handlers;
+using TestTask.Document.Employee.WebApi.Swagger.OperationFilters.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +68,8 @@ if (builder.Configuration.GetValue<bool>("UseSwagger"))
 
         options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securitySchema);
 
+        options.OperationFilter<ApplyAuthJwtBearerOperationFilter>();
+
         options.CustomSchemaIds(x => x.FullName);
     });
 }
@@ -89,6 +91,8 @@ if (app.Configuration.GetValue<bool>("UseSwagger"))
 }
 
 app.UseHttpsRedirection();
+
+app.UseRedirectAuthorizationTokenToHeader();
 
 app.UseAuthentication();
 app.UseAuthorization();

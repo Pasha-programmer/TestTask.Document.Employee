@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Security.Claims;
 using TestTask.Document.Employee.Contract.Dtos;
 using TestTask.Document.Employee.Contract.Dtos.Enums;
 using TestTask.Document.Employee.Contract.Dtos.FilterParameters;
@@ -31,25 +32,41 @@ public static class EndpointBuilder
         employeeDocumentGroupEndpoints.MapPost("/send-request",
         async (
             [FromServices] IDocumentRequestCommand documentRequestCommand,
-            [FromBody] RequestCommandToCreateDto requestCommandToCreateDto,
+            [FromServices] IHttpContextAccessor httpContextAccessor,
+            [FromBody] Model.RequestCommandToCreateDto requestCommandToCreateDto,
             CancellationToken cancellationToken = default
         ) =>
-           {
-               var result = await documentRequestCommand.CreateDocumentRequest(requestCommandToCreateDto, cancellationToken);
+            {
+                var roleClaim = httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.Role)!;
 
-               if (result.IsFailed)
-                   return result.Error == null
-                       ? Results.Problem(result.Details)
-                       : Results.ValidationProblem(result.Error, result.Details);
+                if (roleClaim.Value != PositionType.Other.ToString())
+                {
+                    return Results.Forbid();
+                }
 
-               return Results.Ok(result.Value);
-           })
-           .WithSummary("Отправить запрос на получение справки")
-           .WithDescription("Создает запрос на получение справки")
-           .Produces(StatusCodes.Status200OK)
-           .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
-           .Produces(StatusCodes.Status401Unauthorized)
-           .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
+                var nameClaim = httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.Name)!;
+
+                var result = await documentRequestCommand.CreateDocumentRequest(new()
+                {
+                    Author = nameClaim.Value,
+                    DocumentType = requestCommandToCreateDto.DocumentType,
+                    Count = requestCommandToCreateDto.Count,
+                    Reason = requestCommandToCreateDto.Reason,
+                }, cancellationToken);
+
+                if (result.IsFailed)
+                    return result.Error == null
+                        ? Results.Problem(result.Details)
+                        : Results.ValidationProblem(result.Error, result.Details);
+
+                return Results.Ok(result.Value);
+            })
+            .WithSummary("Отправить запрос на получение справки")
+            .WithDescription("Создает запрос на получение справки")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
 
         employeeDocumentGroupEndpoints.MapGet("",
         async (
@@ -126,11 +143,19 @@ public static class EndpointBuilder
         employeeDocumentGroupEndpoints.MapPut("/{id:int}/status",
         async (
             [FromServices] IDocumentProcessCommand documentProcessCommand,
+            [FromServices] IHttpContextAccessor httpContextAccessor,
             [FromRoute] int id,
             [FromBody] RequestStatus requestStatus,
             CancellationToken cancellationToken = default
         ) =>
         {
+            var roleClaim = httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.Role);
+
+            if (roleClaim.Value != PositionType.Accountant.ToString())
+            {
+                return Results.Forbid();
+            }
+
             var result = await documentProcessCommand.UpdateStatusDocumentRequest(new()
             {
                 Id = id,
@@ -173,27 +198,6 @@ public static class EndpointBuilder
         .Produces<AuthorizationTokenDto>(StatusCodes.Status200OK)
         .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
         .Produces<UnauthorizedHttpResult>(StatusCodes.Status401Unauthorized)
-        .AllowAnonymous();
-
-        usersMapGroup.MapPost("/token/refresh", async (
-            [FromServices] IAuthorizationTokenService service,
-            [FromHeader(Name = "refresh_token")] string refreshToken,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await service.RefreshAuthorizationToken(new RefreshAccessTokenDto { RefreshToken = refreshToken }, cancellationToken);
-
-            if (result.IsFailed)
-                return result.Error == null
-                    ? Results.BadRequest(result.Details)
-                    : Results.ValidationProblem(result.Error, result.Details);
-
-            return Results.Ok(result.Value);
-        })
-        .WithSummary("Обновить токен авторизации")
-        .WithDescription("Обновляет токен авторизации")
-        .Produces<AuthorizationTokenDto>(StatusCodes.Status200OK)
-        .Produces<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)
-        .Produces<BadRequest>(StatusCodes.Status400BadRequest)
         .AllowAnonymous();
     }
 }

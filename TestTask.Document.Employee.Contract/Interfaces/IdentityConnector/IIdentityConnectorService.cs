@@ -17,14 +17,6 @@ public interface IIdentityConnectorService
     Task<AuthorizationTokenDto?> GetUserAuthorizationToken(string userName, string password, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Обновить токен авторизации для пользователя токену обновления.
-    /// </summary>
-    /// <param name="refreshToken">Токен обновления.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>Результат апи с токеном. Null - если данные запроса некорректы или результат неуспешный.</returns>
-    Task<AuthorizationTokenDto?> RefreshUserAuthorizationToken(string refreshToken, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Верифицировать токен (авторизации или обновления).
     /// </summary>
     /// <param name="token">Токен.</param>

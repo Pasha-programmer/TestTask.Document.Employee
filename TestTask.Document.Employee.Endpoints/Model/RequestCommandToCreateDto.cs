@@ -1,18 +1,12 @@
 ﻿using TestTask.Document.Employee.Contract.Dtos.Enums;
 
-namespace TestTask.Document.Employee.Contract.Dtos;
+namespace TestTask.Document.Employee.Endpoints.Model;
 
 /// <summary>
 /// Модель команды для создания запроса на получение справки.
 /// </summary>
 public record RequestCommandToCreateDto
 {
-    /// <summary>
-    /// Автор запроса.
-    /// </summary>
-    // TODO: сделать идентификатор пользователя
-    public required string Author { get; set; }
-
     /// <summary>
     /// Тип запрашиваемого бухгатерского документа.
     /// </summary>
