@@ -145,7 +145,7 @@ public static class EndpointBuilder
             [FromServices] IDocumentProcessCommand documentProcessCommand,
             [FromServices] IHttpContextAccessor httpContextAccessor,
             [FromRoute] int id,
-            [FromBody] RequestStatus requestStatus,
+            [FromQuery] RequestStatus requestStatus,
             CancellationToken cancellationToken = default
         ) =>
         {

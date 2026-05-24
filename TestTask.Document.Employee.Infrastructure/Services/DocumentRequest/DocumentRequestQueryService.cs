@@ -31,14 +31,22 @@ internal class DocumentRequestQueryService(
 
         query = ApplyFilterParameters(query, documentRequestFilterParameters);
 
-        var data = await query.Select(dr => new DocumentRequestDto
+        var data = (await query.Select(dr => new
+        {
+            Id = dr.Id,
+            Author = dr.Author,
+            DocumentType = dr.DocumentType,
+            RequestStatus = dr.RequestStatus,
+            CreateDate = dr.CreateDate,
+        }).ToArrayAsync(cancellationToken))
+        .Select(dr => new DocumentRequestDto
         {
             Id = dr.Id,
             Author = dr.Author,
             DocumentType = (AccountingDocumentType)dr.DocumentType,
             RequestStatus = (RequestStatus)dr.RequestStatus,
             CreateDate = dr.CreateDate,
-        }).ToArrayAsync(cancellationToken);
+        }).ToArray();
 
         return Result<IReadOnlyCollection<DocumentRequestDto>>.Success(data);
     }

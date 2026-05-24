@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Xml.Linq;
 using TestTask.Document.Employee.Common.Monads;
 using TestTask.Document.Employee.Contract.Dtos;
 using TestTask.Document.Employee.Contract.Dtos.Enums;
@@ -33,7 +34,17 @@ internal class DocumentProcessQueryService(
 
         query = ApplyFilterParameters(query, documentRequestFilterParameters);
 
-        var data = await query.Select(dr => new DocumentRequestFullDto
+        var data = (await query.Select(dr => new
+        {
+            Id = dr.Id,
+            Author = dr.Author,
+            DocumentType = dr.DocumentType,
+            RequestStatus = dr.RequestStatus,
+            Count = dr.Count,
+            Reason = dr.Reason,
+            CreateDate = dr.CreateDate,
+        }).ToArrayAsync(cancellationToken))
+        .Select(dr => new DocumentRequestFullDto
         {
             Id = dr.Id,
             Author = dr.Author,
@@ -42,7 +53,7 @@ internal class DocumentProcessQueryService(
             Count = dr.Count,
             Reason = dr.Reason,
             CreateDate = dr.CreateDate,
-        }).ToArrayAsync(cancellationToken);
+        }).ToArray();
 
         return Result<IReadOnlyCollection<DocumentRequestFullDto>>.Success(data);
     }
